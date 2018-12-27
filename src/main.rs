@@ -20,7 +20,7 @@ mod args;
 fn main() {
     let ref matches = args::get_args();
 
-    let sub_match = matches.subcommand_matches("test-junit").unwrap();
+    let sub_match = matches.subcommand_matches("junit").unwrap();
 
     let features = sub_match
         .value_of("features")
