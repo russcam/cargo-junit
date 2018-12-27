@@ -26,7 +26,7 @@ pub fn get_args<'a>() -> clap::ArgMatches<'a> {
 }
 
 pub fn get_file_name(matches: &clap::ArgMatches) -> io::Result<String> {
-    let sub_match = matches.subcommand_matches("test-junit")
+    let sub_match = matches.subcommand_matches("junit")
         .unwrap();
 
     sub_match.value_of("name")
