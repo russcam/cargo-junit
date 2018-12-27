@@ -1,4 +1,4 @@
-# rs-junit
+# rs-junit [![crates.io](https://img.shields.io/crates/v/rs-junit.svg)](https://crates.io/crates/rs-junit)
 
 Converts cargo test output into a junit report. Hard forked from cargo-test-junit, after the former went unmaintained with critical bugs.
 
