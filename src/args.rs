@@ -16,7 +16,7 @@ pub fn get_args<'a>() -> clap::ArgMatches<'a> {
     clap::App::new("test junit")
         .about("Creates junit XML from cargo-test output")
         .bin_name("cargo")
-        .subcommand(clap::SubCommand::with_name("test-junit")
+        .subcommand(clap::SubCommand::with_name("junit")
             .about("Converts cargo test output into a junit report")
             .arg(name_arg)
             .arg(clap::Arg::with_name("features")
