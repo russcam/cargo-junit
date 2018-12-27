@@ -1,10 +1,10 @@
 [package]
-name = "rs-junit"
+name = "cargo-junit"
 version = "0.7.0"
 authors = ["Connor Wood <connorwood71@gmail.com>"]
 keywords = ["test", "cargo", "junit", "jenkins"]
 license = "MIT"
-repository = "https://github.com/rustation/cargo-test-junit"
+repository = "https://github.com/CWood1/cargo-junit"
 description = "Converts cargo test output into a junit report. Hard forked from cargo-test-junit, after it went unmaintained with critical bugs."
 
 [dependencies]

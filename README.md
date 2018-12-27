@@ -1,4 +1,4 @@
-# rs-junit [![crates.io](https://img.shields.io/crates/v/rs-junit.svg)](https://crates.io/crates/rs-junit)
+# cargo-junit [![crates.io](https://img.shields.io/crates/v/cargo-junit.svg)](https://crates.io/crates/cargo-junit)
 
 Converts cargo test output into a junit report. Hard forked from cargo-test-junit, after the former went unmaintained with critical bugs.
 
@@ -7,11 +7,11 @@ Converts cargo test output into a junit report. Hard forked from cargo-test-juni
 ### Installing
 
 ```
-$ cargo install rs-junit
+$ cargo install cargo-junit
 ```
 
 ### Usage
 
 ```
-cargo test-junit --name output.xml
+cargo junit --name output.xml
 ```
