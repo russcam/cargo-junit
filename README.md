@@ -1,13 +1,13 @@
-# cargo-test-junit
+# rs-junit
 
-Converts cargo test output into a junit report
+Converts cargo test output into a junit report. Hard forked from cargo-test-junit, after the former went unmaintained with critical bugs.
 
 
 
 ### Installing
 
 ```
-$ cargo install cargo-test-junit
+$ cargo install rs-junit
 ```
 
 ### Usage
