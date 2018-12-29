@@ -1,8 +1,5 @@
 extern crate clap;
-
-#[macro_use]
 extern crate duct;
-
 extern crate nom;
 extern crate sxd_document;
 extern crate test_to_vec;
@@ -87,7 +84,9 @@ fn main() {
 }
 
 fn get_test_output(features: String) -> std::io::Result<std::process::Output> {
-    cmd!(format!("cargo test{}", features))
+    let args = vec![format!("test{}", features)];
+    
+    cmd("cargo", args)
         .env("RUSTFLAGS", "-A warnings")
         .stderr_to_stdout()
         .stdout_capture()
