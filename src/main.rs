@@ -87,7 +87,6 @@ fn get_test_output(features: String) -> std::io::Result<std::process::Output> {
     let args = vec![format!("test{}", features)];
     
     cmd("cargo", args)
-        .env("RUSTFLAGS", "-A warnings")
         .stderr_to_stdout()
         .stdout_capture()
         .unchecked()
