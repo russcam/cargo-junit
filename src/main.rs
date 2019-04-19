@@ -8,13 +8,20 @@ use sxd_document::Package;
 use sxd_document::writer::format_document;
 use std::fs;
 
-mod doc;
+extern crate time;
+
+use duct::cmd;
+use nom::IResult;
+use time::PreciseTime;
+
 mod args;
 mod cargo;
+mod doc;
 
 fn main() {
     let ref matches = args::get_args();
     let ref name = args::get_file_name(matches).unwrap();
+
     let suites = cargo::get_cargo_test_output(matches);
     let (totals, failures) = suites.suites.iter().fold((0, 0), |(total, failed), y| {
         (total + y.total, failed + y.failed)
@@ -26,7 +33,8 @@ fn main() {
     let test_suites = doc::el(d, "testsuites")
         .attr("name", name)
         .attr("errors", failures)
-        .attr("tests", totals);
+        .attr("tests", totals)
+        .attr("time", t.1);
 
     doc::append_child(d, &test_suites);
 

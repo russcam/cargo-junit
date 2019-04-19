@@ -8,6 +8,7 @@ use cargo_results::cargo_test_result_parser;
 pub struct TestSuites {
     stdout: std::process::Output,
     pub suites: Vec<Suite>,
+    pub time: i64,
 }
 
 pub fn get_cargo_test_output(matches: &ArgMatches) -> TestSuites {
@@ -18,7 +19,8 @@ pub fn get_cargo_test_output(matches: &ArgMatches) -> TestSuites {
         .map(|x| format!(" --features {}", x))
         .unwrap_or("".to_string());
 
-    let output = match get_test_output(features) {
+    let t = get_test_output(features);
+    let output = match t.0 {
         Ok(a) => a,
 	Err(e) => panic!("{}", e),
     };
@@ -26,6 +28,7 @@ pub fn get_cargo_test_output(matches: &ArgMatches) -> TestSuites {
     let mut ts = TestSuites {
         stdout: output,
         suites: vec!(),
+        time: t.1,
     };
 
     ts.suites = match cargo_test_result_parser(&ts.stdout.stdout) {
@@ -37,13 +40,17 @@ pub fn get_cargo_test_output(matches: &ArgMatches) -> TestSuites {
     ts
 }
 
-fn get_test_output(features: String) -> std::io::Result<std::process::Output> {
+fn get_test_output(features: String) -> (std::io::Result<std::process::Output>, i64) {
     let args = vec![format!("test{}", features)];
-    
-    cmd("cargo", args)
+
+    let start = PreciseTime::now();
+    let output = cmd("cargo", args)
         .env("RUSTFLAGS", "-A warnings")
         .stderr_to_stdout()
         .stdout_capture()
         .unchecked()
-        .run()
+        .run();
+
+    let end = PreciseTime::now();
+    return (output, start.to(end).num_seconds());
 }
