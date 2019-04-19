@@ -2,50 +2,26 @@ extern crate clap;
 extern crate duct;
 extern crate nom;
 extern crate sxd_document;
-extern crate test_to_vec;
+extern crate cargo_results;
 
-use nom::IResult;
 use sxd_document::Package;
 use sxd_document::writer::format_document;
-use test_to_vec::Suite;
 use std::fs;
-use duct::cmd;
 
 mod doc;
 mod args;
+mod cargo;
 
 fn main() {
     let ref matches = args::get_args();
-
-    let sub_match = matches.subcommand_matches("junit").unwrap();
-
-    let features = sub_match
-        .value_of("features")
-        .map(|x| format!(" --features {}", x))
-        .unwrap_or("".to_string());
-
     let ref name = args::get_file_name(matches).unwrap();
-
-    let output = match get_test_output(features) {
-        Ok(a) => a,
-	Err(e) => {
-	    println!("{}", e);
-	    return;
-	}
-    };
-    
-    let package = Package::new();
-    let d = package.as_document();
-
-    let suites: Vec<Suite> = match test_to_vec::cargo_test_result_parser(&output.stdout) {
-        IResult::Done(_, x) => x,
-        IResult::Error(e) => panic!("Parser error {:?}", e),
-        _ => panic!("Parser did not finish successfully"),
-    };
-
-    let (totals, failures) = suites.iter().fold((0, 0), |(total, failed), y| {
+    let suites = cargo::get_cargo_test_output(matches);
+    let (totals, failures) = suites.suites.iter().fold((0, 0), |(total, failed), y| {
         (total + y.total, failed + y.failed)
     });
+
+    let package = Package::new();
+    let d = package.as_document();
 
     let test_suites = doc::el(d, "testsuites")
         .attr("name", name)
@@ -54,7 +30,7 @@ fn main() {
 
     doc::append_child(d, &test_suites);
 
-    for suite in &suites {
+    for suite in suites.suites {
         let test_suite = doc::el(d, "testsuite")
             .attr("name", suite.name)
             .attr("errors", suite.failed)
@@ -62,7 +38,7 @@ fn main() {
             .attr("tests", suite.total)
             .append_to(&test_suites);
 
-        for &test_to_vec::Test { name, error, .. } in &suite.tests {
+        for cargo_results::Test { name, error, .. } in suite.tests {
             let test_case = doc::el(d, "testcase")
                 .attr("name", name)
                 .append_to(&test_suite);
@@ -81,15 +57,4 @@ fn main() {
     format_document(&d, &mut f)
         .ok()
         .expect(&format!("unable to output XML to {}", name));
-}
-
-fn get_test_output(features: String) -> std::io::Result<std::process::Output> {
-    let args = vec![format!("test{}", features)];
-    
-    cmd("cargo", args)
-        .env("RUSTFLAGS", "-A warnings")
-        .stderr_to_stdout()
-        .stdout_capture()
-        .unchecked()
-        .run()
 }
