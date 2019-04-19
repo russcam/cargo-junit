@@ -3,16 +3,18 @@ extern crate duct;
 extern crate nom;
 extern crate sxd_document;
 extern crate test_to_vec;
+extern crate time;
 
-use nom::IResult;
-use sxd_document::Package;
-use sxd_document::writer::format_document;
-use test_to_vec::Suite;
-use std::fs;
 use duct::cmd;
+use nom::IResult;
+use std::fs;
+use sxd_document::writer::format_document;
+use sxd_document::Package;
+use test_to_vec::Suite;
+use time::PreciseTime;
 
-mod doc;
 mod args;
+mod doc;
 
 fn main() {
     let ref matches = args::get_args();
@@ -25,15 +27,16 @@ fn main() {
         .unwrap_or("".to_string());
 
     let ref name = args::get_file_name(matches).unwrap();
+    let t = get_test_output(features);
 
-    let output = match get_test_output(features) {
+    let output = match t.0 {
         Ok(a) => a,
-	Err(e) => {
-	    println!("{}", e);
-	    return;
-	}
+        Err(e) => {
+            println!("{}", e);
+            return;
+        }
     };
-    
+
     let package = Package::new();
     let d = package.as_document();
 
@@ -50,7 +53,8 @@ fn main() {
     let test_suites = doc::el(d, "testsuites")
         .attr("name", name)
         .attr("errors", failures)
-        .attr("tests", totals);
+        .attr("tests", totals)
+        .attr("time", t.1);
 
     doc::append_child(d, &test_suites);
 
@@ -83,12 +87,16 @@ fn main() {
         .expect(&format!("unable to output XML to {}", name));
 }
 
-fn get_test_output(features: String) -> std::io::Result<std::process::Output> {
+fn get_test_output(features: String) -> (std::io::Result<std::process::Output>, i64) {
     let args = vec![format!("test{}", features)];
-    
-    cmd("cargo", args)
+    let start = PreciseTime::now();
+
+    let output = cmd("cargo", args)
         .stderr_to_stdout()
         .stdout_capture()
         .unchecked()
-        .run()
+        .run();
+
+    let end = PreciseTime::now();
+    return (output, start.to(end).num_seconds());
 }
