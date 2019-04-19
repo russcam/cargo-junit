@@ -10,10 +10,6 @@ use std::fs;
 
 extern crate time;
 
-use duct::cmd;
-use nom::IResult;
-use time::PreciseTime;
-
 mod args;
 mod cargo;
 mod doc;
@@ -34,7 +30,7 @@ fn main() {
         .attr("name", name)
         .attr("errors", failures)
         .attr("tests", totals)
-        .attr("time", t.1);
+        .attr("time", suites.time);
 
     doc::append_child(d, &test_suites);
 

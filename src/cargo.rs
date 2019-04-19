@@ -4,6 +4,7 @@ use cargo_results::Suite;
 use nom::IResult;
 use std;
 use cargo_results::cargo_test_result_parser;
+use time::PreciseTime;
 
 pub struct TestSuites {
     stdout: std::process::Output,
