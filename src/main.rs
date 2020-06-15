@@ -7,6 +7,8 @@ extern crate cargo_results;
 use sxd_document::Package;
 use sxd_document::writer::format_document;
 use std::fs;
+use std::str;
+use std::path::Path;
 
 extern crate time;
 
@@ -55,10 +57,15 @@ fn main() {
         }
     }
 
+    let path = Path::new(name);
+    if let Some(p) = path.parent() {
+        fs::create_dir_all(p).expect(&format!("could not create directory: {:?}", p));
+    }
+
     let mut f =
-        fs::File::create(format!("{}", name)).expect(&format!("could not create file: {}", name));
+        fs::File::create(path).expect(&format!("could not create file: {:?}", path));
 
     format_document(&d, &mut f)
         .ok()
-        .expect(&format!("unable to output XML to {}", name));
+        .expect(&format!("unable to output XML to {:?}", path));
 }
