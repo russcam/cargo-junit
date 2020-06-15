@@ -25,6 +25,10 @@ fn main() {
         (total + y.total, failed + y.failed)
     });
 
+    if totals == 0 && !suites.unparsed.is_empty() {
+        println!("{}", str::from_utf8(suites.unparsed.as_slice()).unwrap());
+    }
+
     let package = Package::new();
     let d = package.as_document();
 
